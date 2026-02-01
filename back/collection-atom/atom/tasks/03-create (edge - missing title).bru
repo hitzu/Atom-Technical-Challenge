@@ -1,0 +1,27 @@
+meta {
+  name: 03-create (edge - missing title)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/tasks
+  body: json
+  auth: none
+}
+
+headers {
+  authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "description": "Missing required title"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

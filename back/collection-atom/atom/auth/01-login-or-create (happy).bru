@@ -1,0 +1,32 @@
+meta {
+  name: 01-login-or-create (happy)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/auth/login-or-create
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "{{email}}"
+  }
+}
+
+vars:pre-request {
+  email: robert.torres.lopez@gmail.com
+}
+
+script:post-response {
+  if (res.status === 200 && res.body?.token) {
+    bru.setEnvVar('token', res.body.token);
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

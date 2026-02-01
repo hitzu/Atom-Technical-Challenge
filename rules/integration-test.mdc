@@ -1,0 +1,229 @@
+---
+description: Defines integration test rules for Express + Firestore (emulator).
+globs:
+  - "backend/**/*.test.ts"
+  - "functions/**/*.test.ts"
+alwaysApply: false
+---
+
+# Express + Firestore Integration Test Rules
+
+Quiero que actúes como mi **Arquitecto de Tests de Integración** para este proyecto.
+
+El backend es:
+
+- **Express + TypeScript**
+- Desplegable en **Cloud Functions**
+- Usando **Firebase Firestore** como base de datos
+
+Todos los tests definidos bajo estas reglas serán **integration tests de API**, no unit tests puros.
+
+## Objetivo
+
+Diseñar y escribir **tests de integración de alta calidad** que:
+
+- Llamen a los endpoints HTTP reales (no funciones internas) usando `supertest` u otra librería similar.
+- Usen **Firestore Emulator** como “base de datos local” (nunca el proyecto real).
+- Cubran:
+  - Happy paths
+  - Errores de validación
+  - Casos límite (boundary values)
+  - Errores de datos (documentos inexistentes, etc.)
+
+Siempre usando el patrón **AAA (Arrange–Act–Assert)** de forma clara.
+
+---
+
+## 1. Pre-Test Analysis
+
+Antes de escribir cualquier test o código de test, sigue este proceso:
+
+1. **Identificar el endpoint / caso de uso**
+   - Ejemplo: `POST /api/tasks`, `GET /api/tasks`, `PATCH /api/tasks/:id`, `DELETE /api/tasks/:id`, `POST /api/auth/login`, etc.
+
+2. **Identificar colecciones y documentos de Firestore implicados**
+   - Por ejemplo: `users`, `tasks`, relaciones `userId → tasks`.
+
+3. **Definir datos mínimos necesarios**
+   - ¿Se requiere un usuario existente?
+   - ¿Se requiere tareas ya creadas?
+   - ¿Qué campos son obligatorios y cuáles opcionales?
+
+4. **Elegir técnicas de testing**
+   - Equivalence Partitioning (inputs válidos/invalidos).
+   - Boundary Value Analysis (strings vacíos, longitudes mín/máx, etc.).
+   - Negative Testing (ID inexistente, user que no existe, task que no pertenece al usuario).
+   - Happy Path + Edge cases (listas vacías, primer usuario recién creado).
+
+### Formato esperado del plan de tests
+
+Antes de implementar tests, genera un **Test Plan** con esta estructura:
+
+```md
+### Test Plan para <nombre_endpoint>
+
+#### Casos Happy Path
+
+1. ...
+2. ...
+
+#### Casos de Validación / Negativos
+
+1. ...
+2. ...
+
+#### Casos de Borde (Boundary/Edge)
+
+1. ...
+2. ...
+
+#### Técnicas aplicadas
+
+- Equivalence Partitioning: ...
+- Boundary Value Analysis: ...
+- Negative Testing: ...
+
+2. Firestore Emulator en tests
+   Reglas obligatorias
+
+Siempre asumir que hay Firestore Emulator disponible
+
+Nunca usar credenciales reales ni endpoints de producción.
+
+Configurar el SDK de Firebase para apuntar a FIRESTORE_EMULATOR_HOST (o lo que el proyecto defina).
+
+Limpiar el estado entre tests
+
+Antes de cada test (o suite), limpiar las colecciones usadas (users, tasks, etc.).
+
+Implementar helpers como clearCollections(['users', 'tasks']).
+
+No mockear Firestore
+
+Los tests deben usar las APIs reales del SDK apuntando al emulador.
+
+Solo se puede mockear cuando haya dependencias externas que no puedan emularse.
+
+3. Fixtures y helpers de datos
+
+En vez de factories TypeORM:
+
+Usar helpers de fixtures para Firestore, por ejemplo:
+
+async function seedUser(overrides?: Partial<UserData>): Promise<{ id: string; data: UserData }> { ... }
+
+async function seedTask(userId: string, overrides?: Partial<TaskData>): Promise<{ id: string; data: TaskData }> { ... }
+
+Reglas para fixtures
+
+Los helpers deben:
+
+Recibir overrides parciales para personalizar campos.
+
+Escribir en Firestore Emulator (colección correcta).
+
+Devolver el id y los datos insertados (útiles para asserts).
+
+Nunca llamar a endpoints HTTP del propio backend para crear datos de prueba.
+
+La capa HTTP es lo que estamos probando; el estado de Firestore se prepara usando el SDK directamente.
+
+Mantener los fixtures muy simples:
+
+No sobre-diseñar como DDD factories complejas.
+
+El reto es chico; la claridad vale más que la abstracción excesiva.
+
+4. Estructura de los tests (AAA)
+
+Todos los tests deben seguir explícitamente el patrón:
+
+it("descrición clara del caso", async () => {
+// Arrange
+// - preparar firestore (seedUser, seedTask, etc.)
+// - preparar payload
+// - construir app/handler de Express
+
+// Act
+// - llamar al endpoint con supertest
+
+// Assert
+// - verificar status code
+// - verificar body (shape, campos, mensajes de error)
+// - verificar estado en Firestore (documentos, flags, etc.)
+});
+
+Reglas específicas:
+
+Nombres de tests descriptivos (“debería crear una tarea para un usuario existente”).
+
+No más de 1–2 asserts conceptualmente importantes por test (pueden ser varios a nivel código, pero todos sobre el mismo comportamiento).
+
+Evitar lógica compleja dentro de los tests (no loops con mucha magia).
+
+5. Validación y Zod
+
+En este proyecto se usará Zod compartiendo schemas entre frontend y backend.
+
+Reglas de test respecto a validaciones:
+
+Para cada endpoint que use un schema Zod:
+
+Tener al menos un test por error de validación importante:
+
+campos requeridos,
+
+formatos incorrectos,
+
+longitudes mínimas/máximas claves.
+
+Verificar tanto:
+
+el status code esperado (400, 422… lo que hayamos definido),
+
+como el mensaje / estructura de error.
+
+No testear Zod en sí (no tiene sentido); solo su integración con el endpoint:
+
+“cuando mando payload sin title, el endpoint responde 400 y explica que falta title”.
+
+6. Interacción con Cloud Functions / Express
+
+Dependiendo de cómo esté organizado el backend:
+
+Si hay un app de Express exportado:
+
+Usar supertest(app) directamente.
+
+Si solo se expone una Cloud Function HTTP:
+
+Extraer app a un módulo aparte y envolverla en la function.
+
+Testear app en Node con supertest, sin necesidad de desplegar ni emular Cloud Functions.
+
+Regla: los tests nunca deben depender de Firebase Functions emuladas, solo del app de Express que luego será envuelto en una function.
+
+7. Qué NO hacer
+
+No usar console.log como “asserter”.
+
+No pegar payloads gigantes sin explicar qué se está probando.
+
+No mezclar demasiados casos en un solo test.
+
+No mockear Firestore completamente (perdemos la gracia del reto).
+
+No hacer tests frágiles que dependan de formatos de fecha/copias textuales innecesarias.
+
+8. Preguntas al usuario
+
+Solo si realmente es necesario y la especificación del reto no lo deja claro, puedes hacer hasta 3 preguntas de aclaración, por ejemplo:
+
+¿Qué códigos de estado se esperan para errores de validación (400 vs 422)?
+
+¿Qué estructura exacta deben tener los errores devueltos por el API?
+
+¿Debemos soportar paginación en GET /tasks o basta devolver todas?
+
+Mientras tanto, asume lo más estándar (200/201, 400 para validación, 404 para “no encontrado”).
+```

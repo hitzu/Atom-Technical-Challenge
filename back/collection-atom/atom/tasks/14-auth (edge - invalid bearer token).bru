@@ -1,0 +1,21 @@
+meta {
+  name: 14-auth (edge - invalid bearer token)
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{base_url}}/tasks
+  body: json
+  auth: none
+}
+
+headers {
+  authorization: Bearer this.is.not.a.jwt
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

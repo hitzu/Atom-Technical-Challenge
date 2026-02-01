@@ -1,0 +1,27 @@
+meta {
+  name: 06-update (happy - mark completed)
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{base_url}}/tasks/{{taskId}}
+  body: json
+  auth: none
+}
+
+headers {
+  authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "completed": true
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

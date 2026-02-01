@@ -1,0 +1,113 @@
+# Cursor Rules – Express Backend (Cloud Functions + Firestore)
+
+## 1. Framework y estructura
+
+- Usar **Express** con TypeScript.
+- Diseño orientado a **arquitectura limpia / hexagonal light**:
+  - **Capa HTTP**: rutas + controladores muy delgados.
+  - **Capa de aplicación**: casos de uso (services/use-cases).
+  - **Capa de infraestructura**: integración con Firestore.
+  - **Capa de dominio**: entidades, tipos y lógica pura.
+
+## 2. Cloud Functions / Hosting
+
+- El backend debe ser compatible con **Firebase Cloud Functions**:
+  - exportar un `expressApp` y una `functions.https.onRequest(expressApp)` (o equivalente).
+- Evitar asumir que hay un “server” tradicional:
+  - no usar `app.listen()`.
+- Toda configuración de entorno debe leer desde variables (por ejemplo via `process.env`), pero en el challenge se pueden mockear o fijar las mínimas necesarias.
+
+## 3. Rutas y controladores
+
+- Rutas esperadas (mínimo):
+  - `GET /tasks` – listar tareas del usuario autenticado.
+  - `POST /tasks` – crear tarea.
+  - `PATCH /tasks/:id` – actualizar tarea.
+  - `DELETE /tasks/:id` – borrar tarea.
+  - `GET /users/:email` – buscar usuario por email.
+  - `POST /users` – crear usuario.
+- Cada ruta debe:
+  - validar input con Zod (usando esquemas compartidos),
+  - llamar a un caso de uso de aplicación,
+  - manejar errores mediante middleware global.
+
+## 4. Firestore
+
+- Encapsular acceso a Firestore en **repositorios específicos**:
+  - `TasksRepository`,
+  - `UsersRepository`.
+- No usar Firestore directo desde los controladores.
+- Reglas:
+  - siempre filtrar por usuario (email o userId, según modelo elegido).
+  - para tareas: incluir `userId` (o email) + `createdAt` como campos básicos.
+- Si se usa un “wrapper” tipo ODM para Firestore y facilita las cosas, está permitido; pero se debe documentar la elección en el README.
+
+## 5. Autenticación simple (por email)
+
+- No hay password en este challenge.
+- Flujo:
+  - el frontend envía el `email` al backend,
+  - el backend:
+    - busca usuario por email,
+    - si no existe y el frontend lo indica, crea uno,
+    - devuelve un “token” simple (por ejemplo un JWT muy básico o un “session token” firmado).
+- Para el challenge:
+  - se puede usar un JWT simulado (sin provider externo) o un token HMAC:
+    - payload: `{ userId, email }`.
+    - expiración simple (opcional).
+  - el token se envía en `Authorization: Bearer <token>`.
+
+## 6. Middleware
+
+- Incluir:
+  - middleware de **autenticación** que:
+    - lea el token de `Authorization`,
+    - valide la firma,
+    - adjunte `req.user` con `{ userId, email }`.
+  - middleware de **error handler** que:
+    - capture errores,
+    - mapee a códigos HTTP adecuados (400, 404, 500, etc.),
+    - devuelva JSON: `{ error: { message, code? } }`.
+- Usar un middleware de validación para:
+  - parsear `req.body` / `req.params` / `req.query` con Zod,
+  - si falla, responder 400 con la lista de errores.
+
+## 7. Validaciones compartidas con frontend
+
+- Todos los contratos de dominio deben estar definidos como **Zod schemas** en un paquete compartido:
+  - `UserSchema`,
+  - `TaskSchema`,
+  - DTOs para crear/actualizar tarea,
+  - DTO para login.
+- Backend:
+  - usa los mismos schemas para validar y tipar (`z.infer<typeof Schema>`).
+- Frontend:
+  - usa los mismo schemas para formularios y tipos.
+
+## 8. Diseño de dominio (tasks/users)
+
+- Task:
+  - campos mínimos:
+    - `id`,
+    - `userId` (o `userEmail`),
+    - `title`,
+    - `description`,
+    - `createdAt`,
+    - `completed: boolean`.
+- User:
+  - `id`,
+  - `email`,
+  - `createdAt`.
+- Todas las funciones de dominio:
+  - deben ser **puras** cuando sea posible (sin side effects),
+  - se testean en unit tests aislados de Firestore.
+
+## 9. Limpieza y consistencia
+
+- Respuestas JSON consistentes:
+  - listas: `{ data: TaskDto[] }`
+  - detalle: `{ data: TaskDto }`
+  - errores: `{ error: { message, code? } }`
+- No mezclar responsabilidades:
+  - nada de lógica de negocio en repositorios,
+  - nada de Firestore en casos de uso (lo ideal es que dependan de interfaces `ITasksRepository`, `IUsersRepository`).

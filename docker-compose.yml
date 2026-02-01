@@ -1,0 +1,34 @@
+services:
+  firebase-emulator:
+    build:
+      context: .
+      dockerfile: back/firebase-emulator.Dockerfile
+    environment:
+      - FIREBASE_PROJECT_ID=demo-project
+    # Intentionally not exposed to host; internal network only.
+
+  back:
+    build:
+      context: .
+      dockerfile: back/Dockerfile
+    depends_on:
+      - firebase-emulator
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - FIREBASE_PROJECT_ID=demo-project
+      - GCLOUD_PROJECT=demo-project
+      - FIRESTORE_EMULATOR_HOST=firebase-emulator:8080
+      - JWT_SECRET=dev-secret
+      - ALLOW_INSECURE_HEADER_AUTH=true
+    ports:
+      - "4000:4000"
+
+  front:
+    build:
+      context: .
+      dockerfile: front/Dockerfile
+    depends_on:
+      - back
+    ports:
+      - "4173:80"

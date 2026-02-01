@@ -1,0 +1,78 @@
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# ------------------------------
+# Node / JS (monorepo)
+# ------------------------------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Environment files (keep examples)
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Test / coverage outputs
+coverage/
+.nyc_output/
+
+# ------------------------------
+# Angular / Frontend build output
+# ------------------------------
+dist/
+tmp/
+out-tsc/
+bazel-out/
+.angular/cache/
+
+# Miscellaneous
+.sass-cache/
+connect.lock
+libpeerconnection.log
+testem.log
+typings/
+
+# ------------------------------
+# Backend build output
+# ------------------------------
+back/lib/
+
+# Firebase / emulators local state
+back/.firebase/
+back/.runtimeconfig.json
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# ------------------------------
+# IDEs and editors
+# ------------------------------
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code (allow workspace configs)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# ------------------------------
+# System files
+# ------------------------------
+.DS_Store
+Thumbs.db
+
+docs/current_status.md

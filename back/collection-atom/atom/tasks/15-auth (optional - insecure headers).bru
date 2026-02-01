@@ -1,0 +1,22 @@
+meta {
+  name: 15-auth (optional - insecure headers)
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{base_url}}/tasks
+  body: json
+  auth: none
+}
+
+headers {
+  x-user-id: {{insecure_userId}}
+  x-user-email: {{insecure_email}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

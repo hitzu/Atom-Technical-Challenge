@@ -1,0 +1,17 @@
+meta {
+  name: 01-health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/health
+  body: json
+  auth: none
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

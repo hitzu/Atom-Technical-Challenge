@@ -1,0 +1,21 @@
+meta {
+  name: 11-delete (edge - non-existent id still 204)
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{base_url}}/tasks/{{nonExistingTaskId}}
+  body: json
+  auth: none
+}
+
+headers {
+  authorization: Bearer {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

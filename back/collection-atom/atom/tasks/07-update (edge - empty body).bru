@@ -1,0 +1,26 @@
+meta {
+  name: 07-update (edge - empty body)
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{base_url}}/tasks/{{taskId}}
+  body: json
+  auth: none
+}
+
+headers {
+  authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

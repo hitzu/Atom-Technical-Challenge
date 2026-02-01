@@ -1,0 +1,34 @@
+meta {
+  name: 02-create (happy)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/tasks
+  body: json
+  auth: none
+}
+
+headers {
+  authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "title": "Bruno task - happy path",
+    "description": "Created from Bruno collection"
+  }
+}
+
+script:post-response {
+  if (res.status === 201 && res.body?.data?.id) {
+    bru.setEnvVar('taskId', res.body.data.id);
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

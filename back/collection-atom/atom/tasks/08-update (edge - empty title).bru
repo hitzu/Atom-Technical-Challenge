@@ -1,0 +1,27 @@
+meta {
+  name: 08-update (edge - empty title)
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{base_url}}/tasks/{{taskId}}
+  body: json
+  auth: none
+}
+
+headers {
+  authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "title": ""
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

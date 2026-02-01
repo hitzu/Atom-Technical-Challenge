@@ -1,0 +1,17 @@
+meta {
+  name: 12-auth (edge - missing bearer token)
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{base_url}}/tasks
+  body: json
+  auth: none
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

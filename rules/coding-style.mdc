@@ -1,0 +1,81 @@
+# Cursor Rules – Coding Style (Backend TypeScript / Express)
+
+## 1. Filosofía general
+
+- Priorizar **claridad sobre cleverness**.
+- Mantener el código **predecible, explícito y fácil de testear**.
+- Evitar patrones “enterprise” innecesarios para un challenge técnico.
+
+## 2. TypeScript
+
+- Siempre usar **tipos explícitos** en:
+  - parámetros públicos,
+  - valores de retorno de funciones públicas,
+  - interfaces expuestas fuera del módulo.
+- Preferir `interface` para modelos de dominio y contratos, `type` para utilidades y uniones.
+- No usar `any` salvo casos muy justificados; preferir:
+  - `unknown` + narrows,
+  - tipos específicos.
+
+## 3. Estilo de código
+
+- Usar **ESLint + Prettier**:
+  - comillas simples `'`,
+  - punto y coma obligatorio,
+  - 2 espacios de indentación.
+- Nombres:
+  - `PascalCase` para clases y tipos.
+  - `camelCase` para funciones, variables y parámetros.
+  - `SCREAMING_SNAKE_CASE` para constantes globales.
+- Evitar abreviaturas crípticas (`usr`, `cfg`, `envs`); usar nombres claros (`user`, `config`, `environment`).
+
+## 4. Organización de archivos
+
+- Una responsabilidad clara por archivo:
+  - Controllers/routers en `/routes` o `/controllers`.
+  - Casos de uso/servicios de dominio en `/services` o `/use-cases`.
+  - Acceso a datos en `/repositories`.
+  - Tipos compartidos en `/shared` o `/common`.
+- Evitar archivos de más de ~300 líneas: si crece demasiado, extraer funciones auxiliares o casos de uso.
+
+## 5. Manejo de errores
+
+- No usar `console.log` en código de producción; usar un `logger` central (o `console.error` solo en casos muy puntuales si no hay infra de logging).
+- Siempre:
+  - capturar errores en capas externas (middleware de error de Express),
+  - responder con códigos HTTP adecuados y mensajes JSON consistentes.
+- No exponer detalles internos (stack traces, nombres de tablas) en las respuestas.
+
+## 6. Promesas y async/await
+
+- No usar `.then().catch()` en código nuevo:
+  - preferir siempre `async/await`.
+- En bloques `try/catch`:
+  - capturar el error,
+  - loguearlo con contexto,
+  - lanzar una excepción “sanitizada” o delegar a middleware de error.
+
+## 7. Dependencias
+
+- Evitar introducir librerías innecesarias:
+  - si TypeScript/Node estándar lo resuelve bien, no agregar libs extra.
+- Para validación:
+  - usaremos **Zod** (compartido entre backend y frontend).
+- Para DI:
+  - usar **DI simple/manual** (no Inversify u otros contenedores pesados) a menos que se pida explícitamente.
+
+## 8. Comentarios y documentación
+
+- Comentar **solo donde aporte contexto**, no para explicar lo obvio.
+- Usar JSDoc/blocks cortos para:
+  - casos de uso,
+  - funciones que contengan lógica de negocio no trivial,
+  - decisiones “no obvias” (p.ej. workarounds de Firestore o Cloud Functions).
+
+## 9. Convenciones específicas del reto
+
+- No usar NestJS en este repo; el backend se implementa con:
+  - **Express + TypeScript**, arquitectura limpia/hexagonal light.
+- Compartir esquemas de validación con el frontend:
+  - definir los Zod schemas en un paquete interno (por ejemplo `/packages/shared-schemas`),
+  - importar desde backend y frontend según corresponda.
