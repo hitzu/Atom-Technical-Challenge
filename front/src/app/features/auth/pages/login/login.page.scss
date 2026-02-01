@@ -1,84 +1,205 @@
-.login {
-  min-height: 90vh;
+:host {
+  /* Brand tokens (scoped to this component) */
+  --atom-orange-main: #ff6600;
+  --atom-orange-soft: #ff8e43;
+  --atom-orange-light: #ffb788;
+  --atom-black: #000000;
+  --atom-gray-light: #f9f9f9;
+
+  display: block;
+  color: #333;
+}
+
+/* Included per spec; note: component styles are scoped, so we also set vars on :host above */
+:root {
+  --atom-orange-main: #ff6600;
+  --atom-orange-soft: #ff8e43;
+  --atom-orange-light: #ffb788;
+  --atom-black: #000000;
+  --atom-gray-light: #f9f9f9;
+}
+
+.atom-login-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.2fr 1.3fr;
+}
+
+.atom-login-brand-panel {
+  background: var(--atom-orange-main);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: clamp(32px, 6vw, 72px);
 }
 
-.login-card {
+.atom-login-logo-main {
+  width: min(60%, 260px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.14));
+}
+
+.atom-login-form-panel {
+  background: var(--atom-gray-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.atom-login-card {
   width: 100%;
-  max-width: 360px;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px 40px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.1);
+}
+
+.atom-login-logo-inline {
+  width: 64px;
+  height: auto;
+  display: block;
+  margin: 0 auto 16px;
+}
+
+.atom-login-title {
+  margin: 0;
+  text-align: center;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.atom-login-subtitle {
+  margin: 10px 0 0;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.62);
+  font-size: 1rem;
+}
+
+.atom-login-help {
+  margin: 18px 0 0;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.58);
+  font-size: 0.95rem;
+}
+
+.atom-login-form {
+  margin-top: 22px;
+}
+
+.atom-login-field {
+  margin-bottom: 14px;
+}
+
+.atom-login-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.atom-login-input {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  padding: 12px 14px;
+  font-size: 1rem;
   background: #fff;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
 
-  h1 {
-    margin: 0 0 1.5rem;
-    font-size: 1.5rem;
+  &:focus {
+    outline: none;
+    border-color: rgba(255, 102, 0, 0.65);
+    box-shadow: 0 0 0 4px rgba(255, 102, 0, 0.16);
+  }
+}
+
+.atom-login-error {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: #c62828;
+}
+
+.atom-login-error-banner {
+  margin: 10px 0 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: #8b1e1e;
+  background: #ffebee;
+  border: 1px solid rgba(198, 40, 40, 0.18);
+}
+
+.atom-login-submit {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--atom-orange-main);
+  box-shadow: 0 10px 22px rgba(255, 102, 0, 0.28);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease,
+    opacity 150ms ease;
+
+  &:hover:not(:disabled) {
+    background: #ea5d00;
+    box-shadow: 0 14px 28px rgba(255, 102, 0, 0.34);
+    transform: translateY(-1px);
   }
 
-  .field {
-    margin-bottom: 1rem;
-
-    label {
-      display: block;
-      margin-bottom: 0.25rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.5rem 0.75rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-
-      &:focus {
-        outline: none;
-        border-color: #1976d2;
-        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
-      }
-    }
-
-    .error {
-      display: block;
-      margin-top: 0.25rem;
-      font-size: 0.75rem;
-      color: #c62828;
-    }
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 
-  .error-msg {
-    margin: 0 0 1rem;
-    padding: 0.5rem;
-    font-size: 0.875rem;
-    color: #c62828;
-    background: #ffebee;
-    border-radius: 4px;
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .atom-login-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--atom-orange-main);
   }
 
-  button {
+  .atom-login-brand-panel {
+    display: none;
+  }
+
+  .atom-login-form-panel {
     width: 100%;
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #fff;
-    background: #1976d2;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    max-width: 420px;
+    padding: 24px;
+    background: transparent;
+  }
 
-    &:hover:not(:disabled) {
-      background: #1565c0;
-    }
+  .atom-login-card {
+    border-radius: 24px;
+    padding: 24px 20px 32px;
+  }
 
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+  .atom-login-logo-inline {
+    margin-bottom: 12px;
   }
 }

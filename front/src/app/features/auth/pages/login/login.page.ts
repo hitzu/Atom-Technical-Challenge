@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-// import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { AuthApiService } from '../../../../core/services/auth-api.service';
 
 @Component({
   selector: 'app-login',
@@ -11,7 +12,8 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrl: './login.page.scss',
 })
 export class LoginComponent implements OnInit {
-  // private readonly auth = inject(AuthService);
+  private readonly authApi = inject(AuthService);
+  private readonly AuthApiService = inject(AuthApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(NonNullableFormBuilder);
@@ -20,26 +22,33 @@ export class LoginComponent implements OnInit {
 
   protected form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required],
   });
 
   ngOnInit(): void {
-    // if (this.auth.isAuthenticated()) {
-    //   const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
-    //   this.router.navigate([returnUrl || '/']);
-    // }
+    if (this.authApi.isAuthenticated()) {
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
+      this.router.navigate([returnUrl || '/']);
+    }
+
   }
 
   protected async onSubmit(): Promise<void> {
     this.errorMessage.set(null);
     if (this.form.invalid) return;
-    const { email, password } = this.form.getRawValue();
-    // const { error } = await this.auth.signIn(email, password);
-    // if (error) {
-    //   this.errorMessage.set(error.message);
-    //   return;
-    // }
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
-    this.router.navigate([returnUrl || '/']);
+    const { email } = this.form.getRawValue();
+    try {
+      const response = await this.AuthApiService.loginOrCreate(email);
+      if (!response) {
+        this.errorMessage.set('Error al iniciar sesión');
+        return;
+      }
+      this.authApi.setToken(response.token);
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
+      this.router.navigate([returnUrl || '/']);
+    } catch (error) {
+      this.errorMessage.set('Error al iniciar sesión');
+    }
   }
+
+
 }

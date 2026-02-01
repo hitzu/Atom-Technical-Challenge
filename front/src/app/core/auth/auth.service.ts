@@ -9,4 +9,12 @@ export class AuthService {
   public getToken(): string | null {
     return localStorage.getItem('token');
   }
+
+  public isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
+
+  public setToken(token: string): void {
+    localStorage.setItem('token', token);
+  }
 }
