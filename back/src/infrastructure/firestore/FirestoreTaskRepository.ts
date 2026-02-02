@@ -56,5 +56,13 @@ export class FirestoreTaskRepository implements TaskRepository {
   public async delete(taskId: string): Promise<void> {
     await this.tasksCollection.doc(taskId).delete();
   }
+
+  public async getById(taskId: string): Promise<Task> {
+    const snapshot = await this.tasksCollection.doc(taskId).get();
+    if (!snapshot.exists) {
+      throw new Error('Task not found');
+    }
+    return TaskSchema.parse({ id: snapshot.id, ...snapshot.data() });
+  }
 }
 

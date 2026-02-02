@@ -29,7 +29,6 @@ export class LoginComponent implements OnInit {
       const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
       this.router.navigate([returnUrl || '/']);
     }
-
   }
 
   protected async onSubmit(): Promise<void> {
@@ -43,8 +42,9 @@ export class LoginComponent implements OnInit {
         return;
       }
       this.authApi.setToken(response.token);
+      this.authApi.setCurrentUser(response.data);
       const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
-      this.router.navigate([returnUrl || '/']);
+      this.router.navigate([returnUrl || '/tasks']);
     } catch (error) {
       this.errorMessage.set('Error al iniciar sesión');
     }

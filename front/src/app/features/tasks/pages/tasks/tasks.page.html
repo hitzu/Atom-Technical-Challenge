@@ -1,0 +1,130 @@
+<div class="tasks-layout d-flex flex-column min-vh-100">
+  <header
+    class="tasks-header d-flex align-items-center justify-content-between"
+  >
+    <div class="d-flex align-items-center gap-2">
+      <button
+        *ngIf="showHamburger()"
+        type="button"
+        class="hamburger-btn"
+        aria-label="Abrir menú"
+        (click)="toggleMenu()"
+      >
+        <span class="hamburger-icon" aria-hidden="true"></span>
+      </button>
+
+      <div class="tasks-header__brand d-flex align-items-center gap-2">
+        <div class="tasks-header__logo-circle">
+          {{ currentUser?.email?.charAt(0)?.toUpperCase() || 'A' }}
+        </div>
+        <div class="d-flex flex-column">
+          <span class="tasks-header__brand-name">Atom technical challenge</span>
+          <span class="tasks-header__brand-sub">To Do app</span>
+        </div>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-outline-light btn-sm d-none d-sm-inline-flex"
+      (click)="logout()"
+    >
+      Cerrar sesión
+    </button>
+  </header>
+
+  <div class="tasks-main">
+    <aside class="tasks-sidebar d-none d-lg-flex flex-column">
+      <div class="tasks-sidebar__section-title">Menú</div>
+
+      <a
+        class="tasks-sidebar__item"
+        routerLink="/tasks/list"
+        routerLinkActive="tasks-sidebar__item--active"
+      >
+        <span class="tasks-sidebar__item-bullet"></span>
+        <span>Listar tareas</span>
+      </a>
+
+      <a
+        class="tasks-sidebar__item"
+        routerLink="/tasks/create"
+        routerLinkActive="tasks-sidebar__item--active"
+      >
+        <span class="tasks-sidebar__item-bullet"></span>
+        <span>Crear tarea</span>
+      </a>
+
+      <!-- <a
+        class="tasks-sidebar__item"
+        routerLink="/tasks/edit"
+        routerLinkActive="tasks-sidebar__item--active"
+      >
+        <span class="tasks-sidebar__item-bullet"></span>
+        <span>Editar tarea</span>
+      </a> -->
+
+      <div class="mt-auto pt-3 tasks-sidebar__footer small text-muted">
+        Sesión: <span class="fw-semibold">{{ currentUser?.email }}</span>
+      </div>
+    </aside>
+
+    <button
+      *ngIf="!isDesktop() && isMenuOpen()"
+      type="button"
+      class="tasks-drawer-overlay"
+      aria-label="Cerrar menú"
+      (click)="closeMenu()"
+    ></button>
+
+    <aside
+      *ngIf="!isDesktop()"
+      class="tasks-drawer d-flex flex-column"
+      [class.tasks-drawer--open]="isMenuOpen()"
+      aria-label="Menú de tareas"
+    >
+      <div
+        class="tasks-drawer__header d-flex justify-content-between align-items-center"
+      >
+        <span class="tasks-drawer__title">Menú</span>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-light"
+          (click)="closeMenu()"
+        >
+          Cerrar
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="tasks-drawer__item"
+        (click)="onNavigate(['/tasks/list'])"
+      >
+        Listar tareas
+      </button>
+
+      <button
+        type="button"
+        class="tasks-drawer__item"
+        (click)="onNavigate(['/tasks/create'])"
+      >
+        Crear tarea
+      </button>
+
+      <button
+        type="button"
+        class="tasks-drawer__item"
+        (click)="onNavigate(['/tasks/edit'])"
+      >
+        Editar tarea
+      </button>
+    </aside>
+
+    <main class="tasks-content">
+      <div class="tasks-content__inner container-fluid">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<h2 class="mb-2">Listar tareas</h2>
+
+<div *ngIf="isLoading()" class="alert alert-info" role="alert">
+  Cargando tareas...
+</div>
+
+<div *ngIf="errorMessage()" class="alert alert-danger" role="alert">
+  {{ errorMessage() }}
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-bordered align-middle">
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Descripción</th>
+        <th class="text-nowrap">Fecha de creación</th>
+        <th>Completada</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let task of tasks">
+        <td class="text-nowrap">{{ task.title }}</td>
+        <td>{{ task.description || '-' }}</td>
+        <td class="text-nowrap">{{ task.createdAt }}</td>
+        <td>{{ task.completed ? 'Sí' : 'No' }}</td>
+        <td>
+          <button
+            class="btn btn-primary btn-sm"
+            (click)="editTask(task.id || '')"
+          >
+            Editar
+          </button>
+          <button
+            class="btn btn-danger btn-sm"
+            (click)="deleteTask(task.id || '')"
+          >
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

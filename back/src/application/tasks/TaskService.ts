@@ -20,5 +20,9 @@ export class TaskService {
   public async delete(taskId: string): Promise<void> {
     return this.taskRepository.delete(taskId);
   }
+
+  public async getById(taskId: string): Promise<Task> {
+    return this.taskRepository.getById(taskId);
+  }
 }
 

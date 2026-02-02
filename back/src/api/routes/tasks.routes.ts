@@ -12,6 +12,16 @@ export function tasksRoutes(taskService: TaskService): Router {
 
   router.use(authMiddleware);
 
+  router.get('/tasks/:id', async (req, res, next) => {
+    try {
+      const taskId = req.params.id;
+      const task = await taskService.getById(taskId);
+      res.json({ data: task });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.get('/tasks', async (req, res, next) => {
     try {
       const userId = req.user?.userId;

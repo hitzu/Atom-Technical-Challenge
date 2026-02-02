@@ -1,12 +1,11 @@
 meta {
-  name: 06-update (happy - mark completed)
+  name: 18-get by id (happy)
   type: http
-  seq: 6
+  seq: 18
 }
 
-patch {
+get {
   url: {{base_url}}/tasks/{{task_id}}
-  body: json
   auth: none
 }
 
@@ -14,14 +13,7 @@ headers {
   authorization: Bearer {{token}}
 }
 
-body:json {
-  {
-    "completed": true
-  }
-}
-
 settings {
   encodeUrl: true
   timeout: 0
 }
-

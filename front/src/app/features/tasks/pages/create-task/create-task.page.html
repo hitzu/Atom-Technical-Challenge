@@ -1,0 +1,57 @@
+<h2 class="mb-3">Crear tarea</h2>
+
+<div class="card">
+  <div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label class="form-label" for="title">Título</label>
+        <input
+          id="title"
+          class="form-control"
+          type="text"
+          placeholder="Ej: Comprar leche"
+          formControlName="title"
+          autocomplete="off"
+        />
+        <div class="form-text">Campo requerido.</div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="description">Descripción</label>
+        <textarea
+          id="description"
+          class="form-control"
+          rows="3"
+          placeholder="Opcional: agrega detalles"
+          formControlName="description"
+        ></textarea>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button
+          class="btn btn-primary"
+          type="submit"
+          [disabled]="form.invalid || isSubmitting()"
+        >
+          {{ isSubmitting() ? 'Guardando...' : 'Crear' }}
+        </button>
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          (click)="goBack()"
+          [disabled]="isSubmitting()"
+        >
+          Cancelar
+        </button>
+      </div>
+
+      <div
+        *ngIf="errorMessage()"
+        class="alert alert-danger mt-3 mb-0"
+        role="alert"
+      >
+        {{ errorMessage() }}
+      </div>
+    </form>
+  </div>
+</div>

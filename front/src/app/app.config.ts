@@ -1,6 +1,6 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthTokenInterceptor } from './core/http/auth-token.interceptor';
 
@@ -10,8 +10,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(),
-    // Added Angular Material animations support (standalone equivalent to BrowserAnimationsModule).
+    provideHttpClient(withInterceptorsFromDi()),
     provideAnimationsAsync(),
     {
       provide: HTTP_INTERCEPTORS,
