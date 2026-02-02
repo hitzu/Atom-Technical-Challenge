@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { Task } from '@atom/shared';
 import { TaskService } from '../../../../core/task/task.service';
 import { Router } from '@angular/router';
+import { YesNoPipe } from '../../../../core/pipes/yes-no.pipe';
 
 @Component({
   selector: 'app-list-tasks-page',
   standalone: true,
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf, YesNoPipe, DatePipe],
   templateUrl: './list-tasks.page.html',
   styleUrl: './list-tasks.page.scss',
 })

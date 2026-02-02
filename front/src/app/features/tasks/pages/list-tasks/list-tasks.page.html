@@ -23,8 +23,10 @@
       <tr *ngFor="let task of tasks">
         <td class="text-nowrap">{{ task.title }}</td>
         <td>{{ task.description || '-' }}</td>
-        <td class="text-nowrap">{{ task.createdAt }}</td>
-        <td>{{ task.completed ? 'Sí' : 'No' }}</td>
+        <td class="text-nowrap">
+          {{ task.createdAt | date: 'EEEE, MMMM d, y':'':'es-ES' }}
+        </td>
+        <td>{{ task.completed | yesNo }}</td>
         <td>
           <button
             class="btn btn-primary btn-sm"

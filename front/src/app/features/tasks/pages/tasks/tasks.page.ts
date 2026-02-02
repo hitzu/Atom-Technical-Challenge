@@ -61,6 +61,6 @@ export class TasksPage implements OnInit {
 
   protected logout(): void {
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 }

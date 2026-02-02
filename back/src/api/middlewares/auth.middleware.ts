@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { TaskService } from '../../application/tasks/TaskService';
 import jwt from 'jsonwebtoken';
 
 import { getEnvConfig } from '../../config/env';
@@ -46,4 +47,3 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
 
   res.status(401).json({ error: { message: 'Unauthorized' } });
 }
-

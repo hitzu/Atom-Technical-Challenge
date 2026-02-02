@@ -2,9 +2,6 @@ import { z } from 'zod';
 
 import { StoredUserSchema } from './user.schema';
 
-/**
- * Shared auth primitives
- */
 export const EmailSchema = z
   .string()
   .trim()
@@ -14,15 +11,17 @@ export const EmailSchema = z
 
 export const JwtTokenSchema = z.string().min(1);
 
-/**
- * POST /auth/login-or-create
- */
-export const LoginOrCreateBodySchema = z.object({
+export const GetUserByEmailPathSchema = z.object({
   email: EmailSchema,
 });
 
-export const LoginOrCreateResponseSchema = z.object({
+export const CreateUserBodySchema = z.object({
+  email: EmailSchema,
+});
+
+export const UserLoggedInResponseSchema = z.object({
   data: StoredUserSchema,
   token: JwtTokenSchema,
 });
+
 

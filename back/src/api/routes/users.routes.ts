@@ -1,31 +1,40 @@
 import type { Router } from 'express';
 import { Router as createRouter } from 'express';
-import jwt from 'jsonwebtoken';
 
-import { LoginOrCreateBodySchema, LoginOrCreateResponseSchema } from '@atom/shared';
+import { CreateUserBodySchema, UserLoggedInResponseSchema } from '@atom/shared';
 
 import type { UserService } from '../../application/users/UserService';
-import { getEnvConfig } from '../../config/env';
 import { validateBody } from '../middlewares/validation.middleware';
+import { ZodError } from 'zod';
 
 export function usersRoutes(userService: UserService): Router {
   const router = createRouter();
 
-  router.post('/auth/login-or-create', validateBody(LoginOrCreateBodySchema), async (req, res, next) => {
+  router.get('/users/:email', async (req, res, next) => {
     try {
-      const { email } = LoginOrCreateBodySchema.parse(req.body);
-      const user = await userService.loginOrCreate(email);
-
-      const config = getEnvConfig();
-      const token = jwt.sign({ userId: user.id, email: user.email }, config.jwtSecret, { expiresIn: '7d' });
-
+      const { email } = req.params;
+      const userLoggedInResponse = await userService.findByEmail(email);
       res.json(
-        LoginOrCreateResponseSchema.parse({
-          data: user,
-          token,
-        }),
+        UserLoggedInResponseSchema.parse(userLoggedInResponse),
       );
     } catch (error) {
+      next(error);
+    }
+  });
+
+
+  router.post('/auth/sign-in', validateBody(CreateUserBodySchema), async (req, res, next) => {
+    try {
+      const { email } = CreateUserBodySchema.parse(req.body);
+      const userLoggedInResponse = await userService.createUser(email);
+
+      res.json(
+        UserLoggedInResponseSchema.parse(userLoggedInResponse),
+      );
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ error: { message: 'Invalid request body', code: 'INVALID_REQUEST_BODY' } });
+      }
       next(error);
     }
   });

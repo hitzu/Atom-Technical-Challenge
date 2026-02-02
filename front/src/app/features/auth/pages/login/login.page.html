@@ -1,3 +1,9 @@
+@if (successMessage()) {
+<div class="alert alert-success" role="status">{{ successMessage() }}</div>
+} @if (errorMessage()) {
+<p class="atom-login-error-banner">{{ errorMessage() }}</p>
+}
+
 <div class="atom-login-layout">
   <div class="atom-login-brand-panel" aria-hidden="true">
     <img

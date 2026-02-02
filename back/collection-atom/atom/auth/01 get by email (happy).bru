@@ -1,0 +1,36 @@
+meta {
+  name: 01 get by email (happy)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/users/:email
+  body: json
+  auth: none
+}
+
+params:path {
+  email: 
+}
+
+body:json {
+  {
+    "email": "{{email}}"
+  }
+}
+
+vars:pre-request {
+  email: robert.torres.lopez@gmail.com
+}
+
+script:post-response {
+  if (res.status === 200 && res.body?.token) {
+    bru.setEnvVar('token', res.body.token);
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

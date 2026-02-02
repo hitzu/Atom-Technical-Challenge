@@ -5,6 +5,13 @@ import type { TaskRepository } from '../../domain/repositories/TaskRepository';
 export class TaskService {
   public constructor(private readonly taskRepository: TaskRepository) { }
 
+  private async validateUser(taskId: string, userId: string): Promise<void> {
+    const task = await this.getById(taskId);
+    if (task.userId !== userId) {
+      throw new Error('Unauthorized');
+    }
+  }
+
   public async listByUserId(userId: string): Promise<Task[]> {
     return this.taskRepository.listByUserId(userId);
   }
@@ -13,11 +20,13 @@ export class TaskService {
     return this.taskRepository.create(userId, input);
   }
 
-  public async update(taskId: string, input: UpdateTaskInput): Promise<Task> {
+  public async update(taskId: string, userId: string, input: UpdateTaskInput): Promise<Task> {
+    this.validateUser(taskId, userId);
     return this.taskRepository.update(taskId, input);
   }
 
-  public async delete(taskId: string): Promise<void> {
+  public async delete(taskId: string, userId: string): Promise<void> {
+    this.validateUser(taskId, userId);
     return this.taskRepository.delete(taskId);
   }
 

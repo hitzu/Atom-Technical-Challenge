@@ -1,7 +1,7 @@
 meta {
-  name: 02-login-or-create (edge - invalid email)
+  name: 03 create (edge - missing email)
   type: http
-  seq: 2
+  seq: 3
 }
 
 post {
@@ -12,7 +12,6 @@ post {
 
 body:json {
   {
-    "email": "not-an-email"
   }
 }
 
@@ -20,4 +19,3 @@ settings {
   encodeUrl: true
   timeout: 0
 }
-

@@ -55,9 +55,10 @@ export function tasksRoutes(taskService: TaskService): Router {
 
   router.patch('/tasks/:id', validateBody(UpdateTaskInputSchema), async (req, res, next) => {
     try {
+      const userId = req.user!.userId;
       const taskId = req.params.id;
       const input = UpdateTaskInputSchema.parse(req.body);
-      const task = await taskService.update(taskId, input);
+      const task = await taskService.update(taskId, userId, input);
       res.json({ data: task });
     } catch (error) {
       next(error);
@@ -67,7 +68,8 @@ export function tasksRoutes(taskService: TaskService): Router {
   router.delete('/tasks/:id', async (req, res, next) => {
     try {
       const taskId = req.params.id;
-      await taskService.delete(taskId);
+      const userId = req.user!.userId;
+      await taskService.delete(taskId, userId);
       res.status(204).send();
     } catch (error) {
       next(error);
