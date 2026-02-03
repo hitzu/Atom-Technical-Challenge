@@ -1,6 +1,6 @@
 import {
   DOCUMENT
-} from "./chunk-FFY7VSBW.js";
+} from "./chunk-5CGD4DPL.js";
 import {
   ANIMATION_MODULE_TYPE,
   Inject,
@@ -12,14 +12,14 @@ import {
   setClassMetadata,
   ɵɵdefineInjectable,
   ɵɵinject
-} from "./chunk-PCGAWVWW.js";
-import "./chunk-E5ECCKE6.js";
+} from "./chunk-NLH6CZ23.js";
+import "./chunk-6IRHTY4M.js";
 import {
   __objRest,
   __spreadValues
 } from "./chunk-WDMUDEB6.js";
 
-// node_modules/@angular/animations/fesm2022/animations.mjs
+// ../node_modules/@angular/animations/fesm2022/animations.mjs
 var AnimationMetadataType;
 (function(AnimationMetadataType2) {
   AnimationMetadataType2[AnimationMetadataType2["State"] = 0] = "State";
@@ -437,7 +437,7 @@ var AnimationGroupPlayer = class {
 };
 var ɵPRE_STYLE = "!";
 
-// node_modules/@angular/animations/fesm2022/browser.mjs
+// ../node_modules/@angular/animations/fesm2022/browser.mjs
 var LINE_START = "\n - ";
 function invalidTimingValue(exp) {
   return new RuntimeError(3e3, ngDevMode && `The provided timing value "${exp}" is invalid.`);
@@ -4461,4 +4461,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=browser-AABPJHQT.js.map
+//# sourceMappingURL=browser-P7IDD5OR.js.map
