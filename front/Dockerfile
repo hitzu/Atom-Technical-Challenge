@@ -6,6 +6,12 @@ COPY shared/package.json shared/package.json
 COPY shared/tsconfig.json shared/tsconfig.json
 COPY shared/src shared/src
 
+WORKDIR /app/shared
+RUN npm install
+RUN npm run build
+
+WORKDIR /app
+
 COPY front/package.json front/package.json
 COPY front/angular.json front/angular.json
 COPY front/tsconfig.json front/tsconfig.json
@@ -20,7 +26,7 @@ RUN npm run build
 FROM nginx:alpine
 
 COPY front/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/front/dist/front /usr/share/nginx/html
+COPY --from=build /app/front/dist/front/browser /usr/share/nginx/html
 
 EXPOSE 80
 

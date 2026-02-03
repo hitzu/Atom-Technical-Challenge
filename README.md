@@ -52,36 +52,6 @@ Documentos disponibles:
 
 ## 2. Cómo levantar el proyecto (desarrollo)
 
-### 2.1 Opción A — Docker (recomendada para el revisor)
-
-Requisitos:
-
-- Docker Desktop (o Docker Engine + Docker Compose).
-
-Comando:
-
-```bash
-docker compose up --build
-```
-
-Servicios:
-
-```bash
-Frontend: http://localhost:4173
-
-Backend API: http://localhost:4000/api
-
-Health: http://localhost:4000/health
-```
-
-Notas:
-
-El frontend corre en Nginx y enruta `/api/*` hacia el backend.
-
-El emulador de Firestore corre dentro de la red de Docker; no expone puertos al host (no es necesario abrir la UI del emulador para probar la app).
-
-### 2.2 Opción B — Desarrollo local sin Docker
-
 Requisitos:
 
 Node.js: ≥ 20

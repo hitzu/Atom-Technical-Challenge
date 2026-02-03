@@ -17,7 +17,7 @@ function _readRequiredEnv(name: string): string {
 function _readCorsOrigins(): string[] {
   const raw = (process.env.CORS_ORIGINS ?? '').trim();
   if (!raw) {
-    // Defaults cover local dev (Angular) and Docker (Nginx).
+    // Defaults cover local dev (Angular) and container-based Nginx (if used).
     return ['http://localhost:4200', 'http://localhost:4173'];
   }
 

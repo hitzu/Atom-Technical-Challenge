@@ -285,27 +285,17 @@ El diseño del frontend busca:
 
 ---
 
-## 5. Docker, emuladores y desarrollo local
+## 5. Emuladores y desarrollo local
 
-Para facilitar la revisión, se diseñaron **dos modos** de ejecución:
+Para facilitar la revisión, se dejó un modo de ejecución simple en local:
 
-1. **Docker Compose** (recomendado para el revisor):
-   - Levanta:
-     - Firestore Emulator,
-     - backend Express,
-     - frontend servido por Nginx.
-   - El frontend hace peticiones a `/api/*` y Nginx se encarga de enrutar al backend.
-   - Ventaja: el revisor no necesita instalar Firebase CLI ni configurar emuladores.
-
-2. **Dev local** (para el autor y para debugging fino):
-   - Se levanta Firestore Emulator con Firebase CLI.
-   - Se exportan variables de entorno (`FIRESTORE_EMULATOR_HOST`, `FIREBASE_PROJECT_ID`, etc.).
-   - Se levantan backend y frontend con `npm run dev:back` y `npm run dev:front`.
+- Levantar Firestore Emulator con Firebase CLI.
+- Exportar variables de entorno (`FIRESTORE_EMULATOR_HOST`, `FIREBASE_PROJECT_ID`, etc.).
+- Levantar backend y frontend con `npm run dev:back` y `npm run dev:front`.
 
 **Tradeoffs:**
 
-- Docker añade tiempo de build, pero garantiza un entorno homogéneo para el revisor.
-- El modo dev local requiere más pasos (CLI de Firebase + entorno Node), pero es más cómodo para iterar.
+- Requiere más pasos (CLI de Firebase + entorno Node/Java), pero es más cómodo para iterar y depurar.
 
 ---
 
@@ -399,11 +389,10 @@ npm run dev:back
 npm run dev:front
 ```
 
-Verificación de integración end-to-end con:
+Verificación de integración end-to-end:
 
-```bash
-docker compose up --build
-```
+- Front en `http://localhost:4200`
+- API en `http://localhost:4000/health` y `http://localhost:4000/api`
 
 **Estándares:**
 
@@ -413,11 +402,18 @@ docker compose up --build
 
 ---
 
-## 10. Resumen
+### 10. Troubleshooting (para correr la demo)
+
+- **Firestore Emulator (local)**: requiere **Java 21** y Firebase CLI/npx. Si falla, revisa que `FIRESTORE_EMULATOR_HOST=localhost:8080` y `FIREBASE_PROJECT_ID/GCLOUD_PROJECT` estén seteadas.
+- **Puertos ocupados**: por defecto se usan `4000` (API), `4200` (front dev), `8080` (emulador).
+
+---
+
+## 11. Resumen
 
 En conjunto, las decisiones técnicas apuntan a:
 
 - Cumplir el enunciado literal (Angular + Express + Firestore + Cloud Functions).
 - Mantener el código **legible y trazable** para un revisor en poco tiempo.
 - Demostrar criterio en tradeoffs: dónde invertir complejidad (contratos compartidos, auth básico,
-  Docker + emuladores) y dónde simplificar consciente y honestamente.
+  emuladores) y dónde simplificar consciente y honestamente.

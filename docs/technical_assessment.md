@@ -133,9 +133,3 @@ Si lo deseas, puedes incluir funcionalidades extra (por ejemplo: filtros de bús
   - Comentarios de desarrollo (si aplica)
 
 ---
-
-### Troubleshooting (para correr la demo)
-
-- **Firestore Emulator (local)**: requiere **Java 21** y Firebase CLI/npx. Si falla, revisa que `FIRESTORE_EMULATOR_HOST=localhost:8080` y `FIREBASE_PROJECT_ID/GCLOUD_PROJECT` estén seteadas.
-- **Puertos ocupados**: por defecto se usan `4000` (API), `4200` (front dev), `4173` (front en Docker), `8080` (emulador).
-- **Docker compose**: el primer build puede tardar varios minutos (dependencias + build front/back).

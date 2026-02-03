@@ -2,9 +2,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY shared/package.json shared/package.json
-COPY shared/tsconfig.json shared/tsconfig.json
-COPY shared/src shared/src
+COPY back/shared/package.json back/shared/package.json
+COPY back/shared/tsconfig.json back/shared/tsconfig.json
+COPY back/shared/src back/shared/src
 
 COPY back/package.json back/package.json
 COPY back/tsconfig.json back/tsconfig.json
