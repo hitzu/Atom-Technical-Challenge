@@ -1,0 +1,124 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ secrets.NODE_VERSION || '20' }}
+          cache: npm
+
+      # Required for Firebase emulators (Firestore) used in backend tests
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies (workspaces)
+        run: npm ci
+
+      - name: Install Firebase CLI
+        run: npm i -g firebase-tools
+
+      - name: Start Firestore Emulator
+        run: |
+          # The emulator config lives in back/firebase.json (ports, UI, etc.)
+          firebase emulators:start --only firestore --project demo-project --config back/firebase.json > firestore-emulator.log 2>&1 &
+
+          # Wait until emulator is reachable.
+          for i in {1..45}; do
+            code="$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:8080/emulator/v1/projects/demo-project/databases/(default)/documents" || true)"
+            if [ "$code" != "000" ]; then
+              echo "Firestore emulator is up (HTTP $code)"
+              break
+            fi
+            sleep 1
+          done
+
+          # Fail fast if it never came up.
+          code="$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:8080/emulator/v1/projects/demo-project/databases/(default)/documents" || true)"
+          if [ "$code" = "000" ]; then
+            echo "Firestore emulator failed to start."
+            echo "---- firestore-emulator.log ----"
+            cat firestore-emulator.log || true
+            exit 1
+          fi
+
+      - name: Backend tests
+        env:
+          FIREBASE_PROJECT_ID: demo-project
+          GCLOUD_PROJECT: demo-project
+          FIRESTORE_EMULATOR_HOST: 127.0.0.1:8080
+          JWT_SECRET: dev-secret
+          ALLOW_INSECURE_HEADER_AUTH: "false"
+        run: npm test --workspace back
+
+      - name: Frontend tests (headless)
+        env:
+          CI: "true"
+        run: npm test --workspace front -- --watch=false --browsers=ChromeHeadless
+
+      - name: Build backend
+        run: npm run build --workspace back
+
+      - name: Build frontend (production)
+        run: npm run build --workspace front
+
+  deploy:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+
+    # Secrets requeridos:
+    # - FIREBASE_PROJECT_ID
+    # - FIREBASE_SERVICE_ACCOUNT
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies (workspaces)
+        run: npm ci
+
+      - name: Build backend
+        run: npm run build --workspace back
+
+      - name: Build frontend (production)
+        run: npm run build --workspace front
+
+      - name: Install firebase-tools
+        run: npm install -g firebase-tools
+
+      - name: Write service account key
+        run: |
+          cat > "${RUNNER_TEMP}/gcloud-key.json" <<'EOF'
+          ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          EOF
+
+      - name: Firebase deploy (hosting + functions)
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcloud-key.json
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: |
+          firebase deploy --only hosting,functions --project "$FIREBASE_PROJECT_ID"

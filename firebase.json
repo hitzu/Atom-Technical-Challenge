@@ -1,0 +1,20 @@
+{
+  "hosting": {
+    "public": "front/dist/front",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "function": "api"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "functions": {
+    "source": "back",
+    "runtime": "nodejs20"
+  }
+}
