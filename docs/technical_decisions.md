@@ -294,14 +294,13 @@ Para facilitar la revisión, se diseñaron **dos modos** de ejecución:
      - Firestore Emulator,
      - backend Express,
      - frontend servido por Nginx.
-   - El frontend hace peticiones a `/api/*` y Nginx se encarga de proxear al backend.
+   - El frontend hace peticiones a `/api/*` y Nginx se encarga de enrutar al backend.
    - Ventaja: el revisor no necesita instalar Firebase CLI ni configurar emuladores.
 
 2. **Dev local** (para el autor y para debugging fino):
    - Se levanta Firestore Emulator con Firebase CLI.
    - Se exportan variables de entorno (`FIRESTORE_EMULATOR_HOST`, `FIREBASE_PROJECT_ID`, etc.).
-   - Se levantan backend y frontend con `npm run dev:back` y `npm run dev:front` y un proxy
-     de Angular (`proxy.conf.json`) para `/api/*`.
+   - Se levantan backend y frontend con `npm run dev:back` y `npm run dev:front`.
 
 **Tradeoffs:**
 
@@ -397,7 +396,7 @@ Desarrollo local principalmente con:
 
 ```bash
 npm run dev:back
-npm run dev:front -- --proxy-config proxy.conf.json
+npm run dev:front
 ```
 
 Verificación de integración end-to-end con:
