@@ -121,4 +121,5 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcloud-key.json
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         run: |
-          firebase deploy --only hosting,functions --project "$FIREBASE_PROJECT_ID"
+          # --force sets up the Artifact Registry cleanup policy (otherwise Firebase exits 1)
+          firebase deploy --only hosting,functions --project "$FIREBASE_PROJECT_ID" --force

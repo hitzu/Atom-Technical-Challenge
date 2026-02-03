@@ -76,3 +76,5 @@ ui-debug.log*
 Thumbs.db
 
 docs/current_status.md
+
+.firebase/

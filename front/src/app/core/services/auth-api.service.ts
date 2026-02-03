@@ -6,7 +6,15 @@ import { UserLoggedInResponse } from '@atom/shared';
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:4000/api';
+
+  // In prod we use same-origin (/api is rewritten by Firebase Hosting to the function).
+  // In local dev, the API runs on :4000.
+  private readonly baseUrl =
+    typeof window === 'undefined'
+      ? 'http://localhost:4000/api'
+      : window.location.hostname === 'localhost'
+        ? 'http://localhost:4000/api'
+        : `${window.location.origin}/api`;
 
   async signIn(email: string): Promise<UserLoggedInResponse> {
     return firstValueFrom(
