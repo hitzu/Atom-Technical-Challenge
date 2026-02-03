@@ -10,13 +10,24 @@
               <label class="form-label" for="title">Título</label>
               <input
                 id="title"
+                #titleInput
                 class="form-control"
                 type="text"
                 placeholder="Ej: Comprar leche"
                 formControlName="title"
                 autocomplete="off"
+                required
+                [attr.aria-invalid]="isInvalid('title')"
+                aria-describedby="title-help title-error"
               />
-              <div class="form-text">Campo requerido.</div>
+              <div id="title-help" class="form-text">Campo requerido.</div>
+              <div
+                *ngIf="isInvalid('title')"
+                id="title-error"
+                class="invalid-feedback d-block"
+              >
+                El título es requerido.
+              </div>
             </div>
 
             <div class="mb-3">

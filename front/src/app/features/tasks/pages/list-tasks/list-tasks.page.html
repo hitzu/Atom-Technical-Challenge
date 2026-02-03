@@ -1,6 +1,11 @@
 <h2 class="mb-2">Listar tareas</h2>
 
-<div *ngIf="isLoading()" class="alert alert-info" role="alert">
+<div
+  *ngIf="isLoading()"
+  class="alert alert-info"
+  role="status"
+  aria-live="polite"
+>
   Cargando tareas...
 </div>
 
@@ -33,15 +38,23 @@
 
 <div *ngIf="tasks.length > 0" class="table-responsive">
   <table class="table table-striped table-bordered align-middle">
+    <caption class="visually-hidden">
+      Listado de tareas
+    </caption>
     <thead>
       <tr>
-        <th>Título</th>
-        <th>Descripción</th>
-        <th class="text-nowrap">
+        <th scope="col">Título</th>
+        <th scope="col">Descripción</th>
+        <th
+          scope="col"
+          class="text-nowrap"
+          [attr.aria-sort]="sort() === 'asc' ? 'ascending' : 'descending'"
+        >
           <button
             type="button"
             class="btn btn-link p-0 align-baseline text-decoration-none"
             (click)="toggleSort()"
+            [attr.aria-label]="'Ordenar por fecha de creación ' + (sort() === 'asc' ? 'descendente' : 'ascendente')"
           >
             Fecha de creación
             <span class="ms-1" aria-hidden="true">
@@ -49,12 +62,12 @@
             </span>
           </button>
         </th>
-        <th>Estado</th>
-        <th>Acciones</th>
+        <th scope="col">Estado</th>
+        <th scope="col">Acciones</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let task of tasks">
+      <tr *ngFor="let task of tasks; trackBy: trackByTaskId">
         <td class="text-nowrap">{{ task.title }}</td>
         <td>{{ task.description || '-' }}</td>
         <td class="text-nowrap">
@@ -92,12 +105,19 @@
   class="atom-modal"
   role="dialog"
   aria-modal="true"
-  aria-label="Confirmar eliminación de tarea"
+  aria-labelledby="delete-modal-title"
+  aria-describedby="delete-modal-desc"
   (click)="closeDeleteModal()"
+  (keydown)="onDeleteModalKeydown($event)"
 >
-  <div class="atom-modal__card" (click)="$event.stopPropagation()">
-    <h2 class="atom-modal__title">Eliminar tarea</h2>
-    <p class="atom-modal__text">
+  <div
+    #deleteModalCard
+    class="atom-modal__card"
+    tabindex="-1"
+    (click)="$event.stopPropagation()"
+  >
+    <h2 id="delete-modal-title" class="atom-modal__title">Eliminar tarea</h2>
+    <p id="delete-modal-desc" class="atom-modal__text">
       ¿Seguro que deseas eliminar
       <span class="atom-modal__task-title">
         {{ pendingDeleteTask()?.title }}

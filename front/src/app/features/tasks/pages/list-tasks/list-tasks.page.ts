@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { DatePipe, DOCUMENT, NgFor, NgIf } from '@angular/common';
 import { Task, ListTasksQuery } from '@atom/shared';
 import { TaskService } from '../../../../core/task/task.service';
 import { Router } from '@angular/router';
@@ -15,6 +15,10 @@ import { YesNoPipe } from '../../../../core/pipes/yes-no.pipe';
 export class ListTasksPageComponent implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
+
+  @ViewChild('deleteModalCard') private deleteModalCard?: ElementRef<HTMLElement>;
+  private lastFocusedElement: HTMLElement | null = null;
 
   protected tasks: Task[] = [];
   protected readonly isLoading = signal<boolean>(true);
@@ -26,6 +30,10 @@ export class ListTasksPageComponent implements OnInit {
   protected readonly pendingDeleteTask = signal<Task | null>(null);
   protected readonly isDeleting = signal<boolean>(false);
   protected readonly deleteErrorMessage = signal<string | null>(null);
+
+  protected trackByTaskId(index: number, task: Task): string | number {
+    return task.id ?? index;
+  }
 
   async ngOnInit(): Promise<void> {
     await this.loadTasks();
@@ -66,15 +74,27 @@ export class ListTasksPageComponent implements OnInit {
       this.errorMessage.set('No se pudo eliminar la tarea: ID inválido.');
       return;
     }
+    this.lastFocusedElement = this.document.activeElement as HTMLElement | null;
     this.pendingDeleteTask.set(task);
     this.deleteErrorMessage.set(null);
     this.isDeleteModalOpen.set(true);
+    setTimeout(() => this.deleteModalCard?.nativeElement.focus(), 0);
   }
 
   protected closeDeleteModal(): void {
     this.isDeleteModalOpen.set(false);
     this.pendingDeleteTask.set(null);
     this.deleteErrorMessage.set(null);
+    const elToRestore = this.lastFocusedElement;
+    this.lastFocusedElement = null;
+    setTimeout(() => elToRestore?.focus(), 0);
+  }
+
+  protected onDeleteModalKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.closeDeleteModal();
   }
 
   protected async confirmDelete(): Promise<void> {

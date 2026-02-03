@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,15 +12,18 @@ import { TaskService } from '../../../../core/task/task.service';
   templateUrl: './edit-task.page.html',
   styleUrl: './edit-task.page.scss',
 })
-export class EditTaskPageComponent implements OnInit {
+export class EditTaskPageComponent implements OnInit, AfterViewInit {
   private readonly taskService = inject(TaskService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(NonNullableFormBuilder);
 
+  @ViewChild('titleInput') private titleInput?: ElementRef<HTMLInputElement>;
+
   protected readonly isLoading = signal<boolean>(true);
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly hasTriedSubmit = signal<boolean>(false);
 
   // Nota: la ruta actual es `/tasks/edit`. Para la maqueta, tomamos el id desde query param `?id=...`.
   private get taskId(): string | null {
@@ -32,6 +35,15 @@ export class EditTaskPageComponent implements OnInit {
     description: [''],
     completed: [false],
   });
+
+  protected isInvalid(controlName: 'title' | 'description' | 'completed'): boolean {
+    const control = this.form.controls[controlName];
+    return control.invalid && (control.touched || this.hasTriedSubmit());
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.titleInput?.nativeElement.focus(), 0);
+  }
 
   async ngOnInit(): Promise<void> {
     this.isLoading.set(true);
@@ -60,7 +72,11 @@ export class EditTaskPageComponent implements OnInit {
 
   protected async onSubmit(): Promise<void> {
     this.errorMessage.set(null);
-    if (this.form.invalid) return;
+    this.hasTriedSubmit.set(true);
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
     const id = this.taskId;
     if (!id) {
