@@ -4,20 +4,14 @@ meta {
   seq: 4
 }
 
-post {
+get {
   url: {{base_url}}/users/:email
   body: json
   auth: none
 }
 
 params:path {
-  email: 
-}
-
-body:json {
-  {
-    "email": "{{email}}"
-  }
+  email: 2@gmail.com
 }
 
 vars:pre-request {

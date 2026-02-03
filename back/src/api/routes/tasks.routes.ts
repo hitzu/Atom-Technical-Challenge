@@ -15,7 +15,8 @@ export function tasksRoutes(taskService: TaskService): Router {
   router.get('/tasks/:id', async (req, res, next) => {
     try {
       const taskId = req.params.id;
-      const task = await taskService.getById(taskId);
+      const userId = req.user!.userId;
+      const task = await taskService.getById(taskId, userId);
       res.json({ data: task });
     } catch (error) {
       next(error);
@@ -30,7 +31,9 @@ export function tasksRoutes(taskService: TaskService): Router {
         return;
       }
 
-      const tasks = await taskService.listByUserId(userId);
+      const query = req.query;
+
+      const tasks = await taskService.listByUserId(userId, query);
       res.json({ data: tasks });
     } catch (error) {
       next(error);

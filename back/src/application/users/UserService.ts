@@ -1,7 +1,6 @@
 import type { UserRepository } from '../../domain/repositories/UserRepository';
 import type { UserLoggedInResponse } from '@atom/shared';
-import { getEnvConfig } from '../../config/env';
-import jwt from 'jsonwebtoken';
+
 import { AppError } from '../../api/errors/AppError';
 
 export class UserService {
@@ -18,8 +17,7 @@ export class UserService {
       throw new AppError(404, 'User not found', 'USER_NOT_FOUND');
     }
 
-    const config = getEnvConfig();
-    const token = jwt.sign({ userId: user.id, email: user.email }, config.jwtSecret, { expiresIn: '7d' });
+    const token = `DEV.v1.id.${user.id}.email.${user.email}.${Date.now()}`;
 
     return {
       data: user,

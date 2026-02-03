@@ -1,8 +1,9 @@
 import { TaskSchema, UpdateTaskInputSchema } from '@atom/shared';
-import type { Task, UpdateTaskInput } from '@atom/shared';
+import type { Task, UpdateTaskInput, ListTasksQuery } from '@atom/shared';
 import type { Firestore } from 'firebase-admin/firestore';
 
 import type { TaskRepository } from '../../domain/repositories/TaskRepository';
+import { AppError } from '../../api/errors/AppError';
 
 export class FirestoreTaskRepository implements TaskRepository {
   private readonly tasksCollection: FirebaseFirestore.CollectionReference;
@@ -11,9 +12,17 @@ export class FirestoreTaskRepository implements TaskRepository {
     this.tasksCollection = this.firestore.collection('tasks');
   }
 
-  public async listByUserId(userId: string): Promise<Task[]> {
-    const snapshot = await this.tasksCollection.where('userId', '==', userId).orderBy('createdAt', 'asc').get();
-    return snapshot.docs.map((doc) => TaskSchema.parse({ id: doc.id, ...doc.data() }));
+  public async listByUserId(userId: string, query: ListTasksQuery): Promise<Task[]> {
+    const { status, sort } = query;
+
+    const snapshot = await this.tasksCollection.where('userId', '==', userId).orderBy('createdAt', sort ?? 'asc').get();
+    let tasks = snapshot.docs.map((doc) => TaskSchema.parse({ id: doc.id, ...doc.data() }));
+    if (status === 'PENDING') {
+      tasks = tasks.filter((task) => task.completed == false);
+    }
+
+    return tasks;
+
   }
 
   public async create(userId: string, input: { title: string; description?: string }): Promise<Task> {
@@ -45,7 +54,7 @@ export class FirestoreTaskRepository implements TaskRepository {
     const docRef = this.tasksCollection.doc(taskId);
     const existing = await docRef.get();
     if (!existing.exists) {
-      throw new Error('Task not found');
+      throw new AppError(404, 'Task not found', 'TASK_NOT_FOUND');
     }
 
     await docRef.update(safeInput);
@@ -60,7 +69,7 @@ export class FirestoreTaskRepository implements TaskRepository {
   public async getById(taskId: string): Promise<Task> {
     const snapshot = await this.tasksCollection.doc(taskId).get();
     if (!snapshot.exists) {
-      throw new Error('Task not found');
+      throw new AppError(404, 'Task not found', 'TASK_NOT_FOUND');
     }
     return TaskSchema.parse({ id: snapshot.id, ...snapshot.data() });
   }

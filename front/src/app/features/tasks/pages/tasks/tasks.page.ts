@@ -16,14 +16,14 @@ export class TasksPage implements OnInit {
   private readonly router = inject(Router);
 
   protected currentUser: AuthUser | null = null;
-
+  protected token: string | null = null;
   protected readonly isDesktop = signal<boolean>(window.innerWidth >= 992);
   protected readonly isMenuOpen = signal<boolean>(false);
   protected readonly showHamburger = computed<boolean>(() => !this.isDesktop());
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    console.log('qweqweqweqwes', this.currentUser);
+    this.token = this.authService.getToken();
   }
 
   @HostListener('window:resize')

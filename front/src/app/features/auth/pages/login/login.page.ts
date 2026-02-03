@@ -3,6 +3,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { AuthApiService } from '../../../../core/services/auth-api.service';
+import type { UserLoggedInResponse } from '@atom/shared';
 
 @Component({
   selector: 'app-login',
@@ -12,8 +13,8 @@ import { AuthApiService } from '../../../../core/services/auth-api.service';
   styleUrl: './login.page.scss',
 })
 export class LoginComponent implements OnInit {
-  private readonly authApi = inject(AuthService);
-  private readonly AuthApiService = inject(AuthApiService);
+  private readonly authService = inject(AuthService);
+  private readonly authApiService = inject(AuthApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(NonNullableFormBuilder);
@@ -21,13 +22,15 @@ export class LoginComponent implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly isSubmitting = signal(false);
+  protected readonly isCreateUserModalOpen = signal(false);
+  protected readonly pendingEmail = signal<string | null>(null);
 
   protected form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
   });
 
   ngOnInit(): void {
-    if (this.authApi.isAuthenticated()) {
+    if (this.authService.isAuthenticated()) {
       const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
       this.router.navigateByUrl(returnUrl || '/tasks');
     }
@@ -36,35 +39,71 @@ export class LoginComponent implements OnInit {
   protected async onSubmit(): Promise<void> {
     this.successMessage.set(null);
     this.errorMessage.set(null);
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.isSubmitting.set(false);
+      return;
+    }
+
     this.isSubmitting.set(true);
-    if (this.form.invalid) return;
     const { email } = this.form.getRawValue();
     try {
-      let response = await this.AuthApiService.getUserByEmail(email);
+      const response = await this.authApiService.getUserByEmail(email);
       if (!response) {
-        response = await this.AuthApiService.signIn(email);
-
-        this.successMessage.set('Usuario creado. Iniciando sesión...');
-
-        this.authApi.setToken(response.token);
-        this.authApi.setCurrentUser(response.data);
-
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
-
-        window.setTimeout(() => {
-          this.router.navigateByUrl(returnUrl || '/tasks');
-        }, 1200);
-
+        this.pendingEmail.set(email);
+        this.isCreateUserModalOpen.set(true);
         return;
       }
-      this.authApi.setToken(response.token);
-      this.authApi.setCurrentUser(response.data);
-      const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
-      this.router.navigateByUrl(returnUrl || '/tasks');
+
+      this.finishLogin(response);
     } catch (error) {
       this.errorMessage.set('Error al iniciar sesión');
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
 
+  protected closeCreateUserModal(): void {
+    this.isCreateUserModalOpen.set(false);
+    this.pendingEmail.set(null);
+  }
 
+  protected async confirmCreateUser(): Promise<void> {
+    const email = this.pendingEmail();
+    if (!email) return;
+
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+    this.isSubmitting.set(true);
+
+    try {
+      const response = await this.authApiService.signIn(email);
+      this.successMessage.set('Usuario creado. Iniciando sesión...');
+      this.finishLogin(response, { delayMs: 1200 });
+      this.isCreateUserModalOpen.set(false);
+      this.pendingEmail.set(null);
+    } catch (error) {
+      this.errorMessage.set('No se pudo crear el usuario');
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  private finishLogin(
+    response: UserLoggedInResponse,
+    options?: { delayMs?: number },
+  ): void {
+    this.authService.setToken(response.token);
+    this.authService.setCurrentUser(response.data);
+
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
+    const url = returnUrl || '/tasks';
+
+    if (options?.delayMs) {
+      window.setTimeout(() => this.router.navigateByUrl(url), options.delayMs);
+      return;
+    }
+
+    this.router.navigateByUrl(url);
+  }
 }

@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{base_url}}/tasks
+  url: {{base_url}}/tasks?sort=desc
   body: json
   auth: none
+}
+
+params:query {
+  sort: desc
 }
 
 headers {
@@ -18,4 +22,3 @@ settings {
   encodeUrl: true
   timeout: 0
 }
-

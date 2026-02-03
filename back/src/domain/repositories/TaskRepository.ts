@@ -1,7 +1,7 @@
-import type { Task, UpdateTaskInput } from '@atom/shared';
+import type { Task, UpdateTaskInput, ListTasksQuery } from '@atom/shared';
 
 export interface TaskRepository {
-  listByUserId(userId: string): Promise<Task[]>;
+  listByUserId(userId: string, query: ListTasksQuery): Promise<Task[]>;
   create(userId: string, input: { title: string; description?: string }): Promise<Task>;
   update(taskId: string, input: UpdateTaskInput): Promise<Task>;
   delete(taskId: string): Promise<void>;

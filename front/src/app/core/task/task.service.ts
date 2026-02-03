@@ -1,13 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import type { CreateTaskInput, Task, UpdateTaskInput } from '@atom/shared';
+import type { CreateTaskInput, Task, UpdateTaskInput, ListTasksQuery } from '@atom/shared';
 import { TasksApiService } from '../services/tasks-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
   private readonly tasksApi = inject(TasksApiService);
 
-  async listTasks(): Promise<Task[]> {
-    return this.tasksApi.list();
+  async listTasks(query: ListTasksQuery): Promise<Task[]> {
+    return this.tasksApi.list(query);
   }
 
   async createTask(input: CreateTaskInput): Promise<Task> {
@@ -19,7 +19,7 @@ export class TaskService {
   }
 
   async deleteTask(id: string): Promise<void> {
-    return this.tasksApi.delete(id);
+    await this.tasksApi.delete(id);
   }
 
   async getTaskById(id: string): Promise<Task> {

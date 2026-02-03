@@ -39,6 +39,8 @@
             formControlName="email"
             autocomplete="email"
             inputmode="email"
+            [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched ? 'true' : 'false'"
+            [disabled]="isSubmitting()"
           />
           @if (form.controls.email.invalid && form.controls.email.touched) {
           <span class="atom-login-error">Ingresa un email válido.</span>
@@ -52,11 +54,55 @@
         <button
           class="atom-login-submit"
           type="submit"
-          [disabled]="form.invalid"
+          [disabled]="form.invalid || isSubmitting()"
         >
-          Iniciar sesión
+          {{ isSubmitting() ? 'Procesando...' : 'Iniciar sesión' }}
         </button>
       </form>
     </div>
   </div>
 </div>
+
+@if (isCreateUserModalOpen()) {
+<div
+  class="atom-modal-backdrop"
+  aria-hidden="true"
+  (click)="closeCreateUserModal()"
+></div>
+
+<div
+  class="atom-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Confirmar creación de usuario"
+>
+  <div class="atom-modal__card" (click)="$event.stopPropagation()">
+    <h2 class="atom-modal__title">Usuario no encontrado</h2>
+    <p class="atom-modal__text">
+      El usuario
+      <span class="atom-modal__email">{{ pendingEmail() }}</span>
+      no existe. ¿Deseas crearlo?
+    </p>
+
+    <div class="atom-modal__actions">
+      <button
+        type="button"
+        class="atom-modal__btn atom-modal__btn--secondary"
+        (click)="closeCreateUserModal()"
+        [disabled]="isSubmitting()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="atom-modal__btn atom-modal__btn--primary"
+        (click)="confirmCreateUser()"
+        [disabled]="isSubmitting()"
+      >
+        {{ isSubmitting() ? 'Creando...' : 'Crear usuario' }}
+      </button>
+    </div>
+  </div>
+</div>
+}

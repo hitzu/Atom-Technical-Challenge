@@ -203,3 +203,86 @@
     margin-bottom: 12px;
   }
 }
+
+.atom-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+.atom-modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 1001;
+}
+
+.atom-modal__card {
+  width: min(520px, 100%);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 20px 16px;
+  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.22);
+}
+
+.atom-modal__title {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+}
+
+.atom-modal__text {
+  margin: 10px 0 0;
+  color: rgba(0, 0, 0, 0.72);
+  line-height: 1.4;
+}
+
+.atom-modal__email {
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.atom-modal__actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.atom-modal__btn {
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 150ms ease,
+    background-color 150ms ease,
+    opacity 150ms ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.atom-modal__btn--secondary {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.14);
+  color: rgba(0, 0, 0, 0.76);
+}
+
+.atom-modal__btn--primary {
+  background: var(--atom-orange-main);
+  color: #ffffff;
+}
+
+.atom-modal__btn--primary:hover:not(:disabled) {
+  background: #ea5d00;
+  transform: translateY(-1px);
+}

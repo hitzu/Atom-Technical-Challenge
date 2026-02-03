@@ -22,3 +22,7 @@ export const UpdateTaskInputSchema = z
   })
   .refine((v) => Object.keys(v).length > 0, { message: 'At least one field is required' });
 
+export const ListTasksQuerySchema = z.object({
+  status: z.enum(['PENDING', 'COMPLETED']).optional(),
+  sort: z.enum(['asc', 'desc']).optional(),
+});
